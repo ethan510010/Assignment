@@ -8,7 +8,7 @@ const checkLimit = async (req, res, next) => {
     if (requestAmount) {
       currentRequestValue = await increaseCacheAmount(clientIP);
     } else {
-      currentRequestValue = await setCacheValue(clientIP, 1, 60);
+      currentRequestValue = await setCacheValue(clientIP, 1);
     }
     req.currentRequestValue = currentRequestValue;
     next();

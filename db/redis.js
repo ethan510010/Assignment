@@ -2,6 +2,9 @@ const redis = require('redis');
 const redisClient = redis.createClient(require('../config/redis'));
 const APIError = require('../util/error');
 
+const requestLimit = 60;
+const requestLimitTime = 60; // unit: seconds
+
 redisClient.on('connection', () => {
   // eslint-disable-next-line no-console
   console.log('redis connect successfully');
@@ -17,15 +20,15 @@ const getCacheValue = (key) => new Promise((resolve, reject) => {
     if (err) {
       reject(new APIError('get cache ley error', 500));
     }
-    if (result >= 3) {
+    if (result >= requestLimit) {
       reject(new APIError('over request limit', 429));
     }
     resolve(result);
   });
 });
 
-const setCacheValue = (key, value, ttl) => new Promise((resolve, reject) => {
-  redisClient.setex(key, ttl, value, (err) => {
+const setCacheValue = (key, value) => new Promise((resolve, reject) => {
+  redisClient.setex(key, requestLimitTime, value, (err) => {
     if (err) {
       reject(new APIError('set cache key and ttl error', 500));
     }
